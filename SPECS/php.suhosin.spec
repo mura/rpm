@@ -736,7 +736,7 @@ rm files.* macros.php
 %files pspell -f files.pspell
 
 %changelog
-* Tue Jan 13 2009 Yohei Murayama <muracchi@users.sourceforge.jp> 5.2.8-suhosin.1
+* Tue Jan 13 2009 Yohei Murayama <muracchi@users.sourceforge.jp> 5.2.8-1.suhosin_0.9.6.3
 - add Suhosin patch
 
 * Sat Jan 03 2009 Remi Collet <Fedora@FamilleCollet.com> 5.2.8-1
