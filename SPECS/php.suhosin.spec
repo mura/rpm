@@ -2,13 +2,12 @@
 %define apiver 20041225
 %define zendver 20060613
 %define pdover 20060511
-
-%define _default_patch_fuzz 2
+%define httpd_mmn %(cat %{_includedir}/httpd/.mmn || echo missing-httpd-devel)
 
 Summary: PHP scripting language for creating dynamic web sites
 Name: php
-Version: 5.2.8
-Release: 1.suhosin_0.9.6.3%{?dist}
+Version: 5.2.9
+Release: 2.suhosin_0.9.7%{?dist}
 License: PHP
 Group: Development/Languages
 URL: http://www.php.net/
@@ -18,41 +17,39 @@ Source1: php.conf
 Source2: php.ini
 Source3: macros.php
 
-Patch1: php-5.2.6-gnusrc.patch
-Patch2: php-4.3.3-install.patch
+# Build fixes
+Patch1: php-5.2.9-gnusrc.patch
+Patch2: php-5.2.8-install.patch
 Patch3: php-5.2.4-norpath.patch
-Patch5: php-5.0.2-phpize64.patch
-Patch8: php-5.2.0-includedir.patch
-Patch9: php-5.2.4-embed.patch
+Patch4: php-5.2.8-phpize64.patch
+Patch5: php-5.2.0-includedir.patch
+Patch6: php-5.2.4-embed.patch
 
 # Fixes for extension modules
-Patch21: php-5.2.4-odbc.patch
-Patch22: php-4.3.11-shutdown.patch
-Patch24: php-5.2.3-macropen.patch
+Patch20: php-4.3.11-shutdown.patch
+Patch21: php-5.2.3-macropen.patch
 
 # Functional changes
-Patch30: php-5.0.4-dlopen.patch
-Patch31: php-5.2.4-easter.patch
-Patch32: php-5.2.6-systzdata.patch
+Patch40: php-5.0.4-dlopen.patch
+Patch41: php-5.2.4-easter.patch
+Patch42: php-5.2.5-systzdata.patch
 
 # Fixes for tests
-Patch50: php-5.2.7-tests-dashn.patch
-Patch51: php-5.0.4-tests-wddx.patch
+Patch60: php-5.2.7-tests-dashn.patch
+Patch61: php-5.0.4-tests-wddx.patch
 
 # Suhosin patch
-Patch100: suhosin-patch-5.2.8-0.9.6.3.patch
+Patch100: suhosin-patch-5.2.9-0.9.7.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires: bzip2-devel, curl-devel >= 7.9, db4-devel, expat-devel
-BuildRequires: gmp-devel
+BuildRequires: bzip2-devel, curl-devel >= 7.9, db4-devel, gmp-devel
 BuildRequires: httpd-devel >= 2.0.46-1, pam-devel
 BuildRequires: libstdc++-devel, openssl-devel, sqlite-devel >= 3.0.0
 BuildRequires: zlib-devel, pcre-devel >= 6.6, smtpdaemon, readline-devel
 BuildRequires: bzip2, perl, libtool >= 1.4.3, gcc-c++
 Obsoletes: php-dbg, php3, phpfi, stronghold-php
-# Enforce Apache module ABI compatibility
-Requires: httpd-mmn = %(cat %{_includedir}/httpd/.mmn || echo missing-httpd-devel)
+Requires: httpd-mmn = %{httpd_mmn}
 Provides: mod_php = %{version}-%{release}
 Requires: php-common = %{version}-%{release}
 # For backwards-compatibility, require php-cli for the time being:
@@ -90,10 +87,12 @@ Provides: php(api) = %{apiver}, php(zend-abi) = %{zendver}
 # Provides for all builtin modules:
 Provides: php-bz2, php-calendar, php-ctype, php-curl, php-date, php-exif
 Provides: php-ftp, php-gettext, php-gmp, php-hash, php-iconv, php-libxml
-Provides: php-openssl, php-pcre, php-posix
 Provides: php-reflection, php-session, php-shmop, php-simplexml, php-sockets
-Provides: php-spl, php-sysvsem, php-sysvshm, php-sysvmsg, php-tokenizer
-Provides: php-wddx, php-zlib, php-json, php-zip, php-dbase
+Provides: php-spl, php-tokenizer, php-openssl, php-pcre
+Provides: php-zlib, php-json, php-zip, php-dbase
+# To be split in php-process 
+Provides: php-posix, php-sysvsem, php-sysvshm, php-sysvmsg
+
 Obsoletes: php-openssl, php-pecl-zip, php-json, php-dbase
 
 %description common
@@ -231,7 +230,7 @@ Summary: A module for PHP applications which use XML
 Group: Development/Languages
 Requires: php-common = %{version}-%{release}
 Obsoletes: php-domxml, php-dom
-Provides: php-dom, php-xsl, php-domxml
+Provides: php-dom, php-xsl, php-domxml, php-wddx
 BuildRequires: libxslt-devel >= 1.0.18-1, libxml2-devel >= 2.4.14-1
 
 %description xml
@@ -243,7 +242,6 @@ and performing XSL transformations on XML documents.
 Summary: A module for PHP applications which use the XML-RPC protocol
 Group: Development/Languages
 Requires: php-common = %{version}-%{release}
-BuildRequires: expat-devel
 
 %description xmlrpc
 The php-xmlrpc package contains a dynamic shared object that will add
@@ -362,25 +360,25 @@ support for using the pspell library to PHP.
 
 %prep
 %setup -q
+
+%patch100 -p1 -b .suhosin
+
 %patch1 -p1 -b .gnusrc
 %patch2 -p1 -b .install
 %patch3 -p1 -b .norpath
-%patch5 -p1 -b .phpize64
-%patch8 -p1 -b .includedir
-%patch9 -p1 -b .embed
+%patch4 -p1 -b .phpize64
+%patch5 -p1 -b .includedir
+%patch6 -p1 -b .embed
 
-%patch21 -p1 -b .odbc
-%patch22 -p1 -b .shutdown
-%patch24 -p1 -b .macropen
+%patch20 -p1 -b .shutdown
+%patch21 -p1 -b .macropen
 
-%patch30 -p1 -b .dlopen
-%patch31 -p1 -b .easter
-%patch32 -p1 -b .systzdata
+%patch40 -p1 -b .dlopen
+%patch41 -p1 -b .easter
+%patch42 -p1 -b .systzdata
 
-%patch50 -p1 -b .tests-dashn
-%patch51 -p1 -b .tests-wddx
-
-%patch100 -p1 -b .suhosin
+%patch60 -p1 -b .tests-dashn
+%patch61 -p1 -b .tests-wddx
 
 # Prevent %%doc confusion over LICENSE files
 cp Zend/LICENSE Zend/ZEND_LICENSE
@@ -423,6 +421,11 @@ if test "x${vpdo}" != "x%{pdover}"; then
    exit 1
 fi
 
+# use computed goto
+pushd Zend
+php zend_vm_gen.php --with-vm-kind=GOTO
+popd
+
 %build
 # Force use of system libtool:
 libtoolize --force --copy
@@ -448,6 +451,7 @@ build() {
 mkdir Zend && cp ../Zend/zend_{language,ini}_{parser,scanner}.[ch] Zend
 ln -sf ../configure
 %configure \
+	--with-zend-vm=GOTO \
 	--cache-file=../config.cache \
         --with-libdir=%{_lib} \
 	--with-config-file-path=%{_sysconfdir} \
@@ -470,8 +474,6 @@ ln -sf ../configure
 	--with-iconv \
 	--with-jpeg-dir=%{_prefix} \
 	--with-openssl \
-	--with-png \
-	--with-expat-dir=%{_prefix} \
         --with-pcre-regex=%{_prefix} \
 	--with-zlib \
 	--with-layout=GNU \
@@ -480,22 +482,15 @@ ln -sf ../configure
 	--enable-magic-quotes \
 	--enable-sockets \
 	--enable-sysvsem --enable-sysvshm --enable-sysvmsg \
-	--enable-track-vars \
-	--enable-trans-sid \
-	--enable-yp \
 	--enable-wddx \
 	--with-kerberos \
 	--enable-ucd-snmp-hack \
-	--with-unixODBC=shared,%{_prefix} \
-	--enable-memory-limit \
 	--enable-shmop \
 	--enable-calendar \
-	--enable-dbx \
-	--enable-dio \
         --without-mime-magic \
         --without-sqlite \
         --with-libxml-dir=%{_prefix} \
-	--with-xml \
+	--enable-xml \
         --with-system-tzdata \
 	$* 
 if test $? != 0; then 
@@ -512,7 +507,7 @@ pushd build-cgi
 build --enable-force-cgi-redirect \
       --enable-pcntl \
       --with-imap=shared --with-imap-ssl \
-      --enable-mbstring=shared --enable-mbstr-enc-trans \
+      --enable-mbstring=shared \
       --enable-mbregex \
       --with-ncurses=shared \
       --with-gd=shared \
@@ -523,7 +518,6 @@ build --enable-force-cgi-redirect \
       --with-mysql=shared,%{_prefix} \
       --with-mysqli=shared,%{_bindir}/mysql_config \
       --enable-dom=shared \
-      --with-dom-xslt=%{_prefix} --with-dom-exslt=%{_prefix} \
       --with-pgsql=shared \
       --with-snmp=shared,%{_prefix} \
       --enable-soap=shared \
@@ -544,11 +538,12 @@ build --enable-force-cgi-redirect \
       --with-mcrypt=shared,%{_prefix} \
       --with-mhash=shared,%{_prefix} \
       --with-tidy=shared,%{_prefix} \
-      --with-mssql=shared,%{_prefix}
+      --with-mssql=shared,%{_prefix} \
+      --with-unixODBC=shared,%{_prefix}
 popd
 
 without_shared="--without-mysql --without-gd \
-      --without-odbc --disable-dom \
+      --without-unixODBC --disable-dom \
       --disable-dba --without-unixODBC \
       --disable-pdo --disable-xmlreader --disable-xmlwriter \
       --disable-json --without-pspell"
@@ -736,8 +731,16 @@ rm files.* macros.php
 %files pspell -f files.pspell
 
 %changelog
-* Tue Jan 13 2009 Yohei Murayama <muracchi@users.sourceforge.jp> 5.2.8-1.suhosin_0.9.6.3
-- add Suhosin patch
+* Sun Apr 26 2009 Yohei Murayama <muracchi@users.sourceforge.jp> 5.2.9-2.suhosin_0.9.7
+- enable suhosin patch
+
+* Fri Apr 17 2009 Joe Orton <jorton@redhat.com> 5.2.9-2
+- stay at v3 of systzdata patch
+
+* Thu Apr 16 2009 Remi Collet <Fedora@FamilleCollet.com> - 5.2.9-1
+- update to 5.2.9
+- merge with some rawhide improvments (fix patch fuzz, renumber
+  patches, drop obsolete configure args, drop -odbc patch)
 
 * Sat Jan 03 2009 Remi Collet <Fedora@FamilleCollet.com> 5.2.8-1
 - update to 5.2.8
