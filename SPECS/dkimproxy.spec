@@ -34,7 +34,9 @@ rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
 %{__mkdir_p} $RPM_BUILD_ROOT%{_initrddir}
 %{__mkdir_p} $RPM_BUILD_ROOT%{_localstatedir}/run/%{name}
+%{__mkdir_p} $RPM_BUILD_ROOT%{_mandir}/
 %{__install} -m755 %{SOURCE1} $RPM_BUILD_ROOT%{_initrddir}/%{name}
+%{__mv} $RPM_BUILD_ROOT%{_localstatedir}/lib/%{name}/share/man/* $RPM_BUILD_ROOT%{_mandir}
 
 %pre
 /usr/sbin/useradd -c "dkimproxy" -u 103 \
@@ -52,6 +54,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_localstatedir}/lib/%{name}/bin
 %{_localstatedir}/lib/%{name}/etc
 %{_localstatedir}/lib/%{name}/lib
+%{_mandir}
 %attr(-,dkim,dkim) %dir %{_localstatedir}/run/%{name}
 
 %changelog
