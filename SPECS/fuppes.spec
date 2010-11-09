@@ -139,7 +139,7 @@ echo 'echo "-I/usr/include/"' > mpeg4ip-config
 chmod +x mpeg4ip-config
 MPEG4IP_CONFIG="./mpeg4ip-config" ; export MPEG4IP_CONFIG
 UUID_LIBS="-lossp-uuid"
-%configure --enable-transcoder-ffmpeg --enable-lame --enable-twolame --enable-flac --enable-mad --enable-faad --enable-twolime
+%configure --enable-transcoder-ffmpeg --enable-lame --enable-twolame --enable-flac --enable-mad --enable-faad
 %{__make} %{?_smp_mflags}
 
 %pre
