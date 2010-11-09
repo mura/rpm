@@ -1,5 +1,5 @@
 Name:           dkimproxy
-Version:        1.2
+Version:        1.3
 Release:        1%{?dist}
 Summary:        SMTP-proxy that signs and/or verifies emails
 
@@ -58,6 +58,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(-,dkim,dkim) %dir %{_localstatedir}/run/%{name}
 
 %changelog
+* Wed Nov 10 2010 Yohei Murayama <muracchi@users.sourceforge.jp> 1.2-1
+- update version
 * Sun Nov 29 2009 Yohei Murayama <muracchi@users.sourceforge.jp> 1.2-1
 - update version
 * Sun Apr  6 2008 Yohei Murayama <muracchi@users.sourceforge.jp> 1.0.1-2
