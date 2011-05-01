@@ -1,0 +1,89 @@
+#!/bin/bash
+#
+# FUPPES        Free UPnP Entertainment Service
+#
+# chkconfig: 2345 99 99
+# description: Free UPnP Entertainment Service
+#
+
+prog=fuppesd
+lockfile=/var/lock/subsys/$prog
+
+FUPPES_NAME="Free UPnP Entertainment Service"
+FUPPES_DIR=/etc/fuppes
+FUPPES_CONFIG=$FUPPES_DIR/fuppes.cfg
+FUPPES_DB=$FUPPES_DIR/fuppes.db
+FUPPES_VFOLDER=$FUPPES_DIR/vfolder.cfg
+FUPPES_BIN=/usr/sbin/$prog
+
+# Source function library.
+if [ -f /etc/init.d/functions ] ; then
+  . /etc/init.d/functions
+elif [ -f /etc/rc.d/init.d/functions ] ; then
+  . /etc/rc.d/init.d/functions
+else
+  exit 1
+fi
+
+# Source networking configuration.
+. /etc/sysconfig/network
+
+if [ -f /etc/sysconfig/fuppes ]; then
+   . /etc/sysconfig/fuppes
+fi
+
+# Check that networking is up.
+[ ${NETWORKING} = "no" ] && exit 1
+
+# Check that fuppes.cfg exists.
+[ -f "${FUPPES_CONFIG}" ] || exit 6
+
+RETVAL=0
+
+start() {
+  # Start daemon.
+  echo -n $"Starting $prog: "
+  daemon $FUPPES_BIN --config-file $FUPPES_CONFIG --database-file $FUPPES_DB --vfolder-config-file $FUPPES_VFOLDER --friendly-name "$FUPPES_NAME" --log-level 1 --log-file /var/log/$prog.log
+  RETVAL=$?
+  echo
+  [ $RETVAL -eq 0 ] && touch $lockfile
+  return $RETVAL
+}
+
+stop() {
+  echo -n $"Shutting down $prog: "
+  killproc $prog
+  RETVAL=$?
+  echo
+  [ $RETVAL -eq 0 ] && rm -f $lockfile
+  return $RETVAL
+}
+
+# See how we were called.
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  status)
+	status $prog
+	;;
+  restart|force-reload)
+	stop
+	start
+	;;
+  try-restart|condrestart)
+	if status $prog > /dev/null; then
+	    stop
+	    start
+	fi
+	;;
+  reload)
+	exit 3
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|status|restart|try-restart|force-reload}"
+	exit 2
+esac
